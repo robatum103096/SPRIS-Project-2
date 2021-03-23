@@ -1,0 +1,22 @@
+---
+title: 'SPRIS Project 2: Crossover Analysis'
+author: "Robert Tumasian"
+date: "3/23/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#load libraries
+library(tidyverse)
+
+#load data
+bl.data=read.csv("baseline.csv")
+endpt.data=read.csv("endpoints.csv")
+```
+
+```{r}
+#
+```
+
