@@ -59,7 +59,8 @@ ae.plot1/ae.plot2
 ```
 
 ```{r}
-#Adherence day (ACROSS ALL 6 SEQUENCES)
+
+#Adherence (ACROSS ALL 6 SEQUENCES)
 adherence.plot1=all.data %>%
   dplyr::filter(AE.or.Adhere=="Adhere") %>%
   dplyr::select(trt,AE.or.adhere.val,week) %>%
