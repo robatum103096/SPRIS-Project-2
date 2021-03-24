@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #load libraries
 library(tidyverse)
+library(patchwork)
 
 #load data
 bl.data=read.csv("baseline.csv")[,-c(1,3:5)]
@@ -37,25 +38,45 @@ View(all.data)
 ```{r}
 #PRIMARY OBJECTIVES (safety and adherence)
 
-#Safety (ACROSS ALL 6 SEQUENCES)
-all.data %>%
+#Safety
+ae.plot1=all.data %>%
   dplyr::filter(AE.or.Adhere=="AE") %>%
   dplyr::select(trt,AE.or.adhere.val,week) %>%
   ggplot(aes(x=week,y=AE.or.adhere.val))+
   geom_histogram(stat="identity")+
   facet_grid(.~trt)+
   labs(y="No. of grade 2 or higher AEs",x="Week")
+
+ae.plot2=all.data %>%
+  dplyr::filter(AE.or.Adhere=="AE") %>%
+  dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
+  ggplot(aes(x=week,y=AE.or.adhere.val))+
+  geom_histogram(stat="identity")+
+  facet_grid(.~sequence1)+
+  labs(y="No. of grade 2 or higher AEs",x="Week")
+
+ae.plot1/ae.plot2
 ```
 
 ```{r}
 #Adherence day (ACROSS ALL 6 SEQUENCES)
-all.data %>%
+adherence.plot1=all.data %>%
   dplyr::filter(AE.or.Adhere=="Adhere") %>%
   dplyr::select(trt,AE.or.adhere.val,week) %>%
   ggplot(aes(x=week,y=AE.or.adhere.val))+
   geom_histogram(stat="identity")+
   facet_grid(.~trt)+
   labs(y="Days of adherence",x="Week")
+
+adherence.plot2=all.data %>%
+  dplyr::filter(AE.or.Adhere=="Adhere") %>%
+  dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
+  ggplot(aes(x=week,y=AE.or.adhere.val))+
+  geom_histogram(stat="identity")+
+  facet_grid(.~sequence1)+
+  labs(y="Days of adherence",x="Week")
+
+adherence.plot1/adherence.plot2
 ```
 
 
