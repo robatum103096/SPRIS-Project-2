@@ -95,3 +95,9 @@ all.data <- left_join(bl.data, endpt.data.long, by = c("ptid", "treatment")) %>%
   select(ptid, period, treatment, week, AE, Adhere, everything())
 
 write.csv(all.data, file = "alldata.csv")
+
+pk.data <- all.data %>%
+  gather(key = viral_time, value = viral, bviral0, sviral0, bviral1, sviral1, bviral2,
+         sviral2, bviral3, sviral3, bviral4, sviral4, bviral5, sviral5, bviral6, sviral6)
+
+write.csv(pk.data, file = "pkdata.csv")
