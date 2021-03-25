@@ -36,6 +36,11 @@ View(all.data)
 ```
 
 ```{r}
+#Patient characteristics/demographics table
+
+```
+
+```{r}
 #PRIMARY OBJECTIVES (safety and adherence)
 
 #Safety
