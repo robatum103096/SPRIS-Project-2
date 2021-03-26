@@ -96,8 +96,31 @@ all.data <- left_join(bl.data, endpt.data.long, by = c("ptid", "treatment")) %>%
 
 write.csv(all.data, file = "alldata.csv")
 
-pk.data <- all.data %>%
-  gather(key = viral_time, value = viral, bviral0, sviral0, bviral1, sviral1, bviral2,
-         sviral2, bviral3, sviral3, bviral4, sviral4, bviral5, sviral5, bviral6, sviral6)
+pk.data1 <- all.data %>%
+  gather(key = viral_time, value = viral_blood, bviral0, bviral1, bviral2,
+         bviral3, bviral4, bviral5, bviral6) %>%
+  select(-sviral0, -sviral1, -sviral2,
+         -sviral3, -sviral4, -sviral5, -sviral6)
+pk.data1$viral_time <- factor(pk.data1$viral_time, 
+                              levels = c("bviral0", "bviral1", "bviral2", "bviral3", 
+                                         "bviral4", "bviral5", "bviral6"))
+levels(pk.data1$viral_time) <- 0:6
+
+pk.data2 <- all.data %>%
+  gather(key = viral_time, value = viral_skin, sviral0, sviral1, sviral2,
+         sviral3, sviral4, sviral5, sviral6) %>%
+  select(-bviral0, -bviral1, -bviral2,
+         -bviral3, -bviral4, -bviral5, -bviral6)
+pk.data2$viral_time <- factor(pk.data2$viral_time, 
+                              levels = c("sviral0", "sviral1", "sviral2", "sviral3", 
+                                         "sviral4", "sviral5", "sviral6"))
+levels(pk.data2$viral_time) <- 0:6
+
+pk.data <- full_join(pk.data1, pk.data2, 
+                     by = c("ptid", "period", "treatment", "week", "viral_time",
+                            "AE", "Adhere", "age", "race", "gender")) %>%
+  gather(key = position, value = viral, viral_skin, viral_blood)
+pk.data$position <- factor(pk.data$position, levels = c("viral_blood", "viral_skin"))
+levels(pk.data$position) <- c("blood", "skin")
 
 write.csv(pk.data, file = "pkdata.csv")
