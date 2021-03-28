@@ -179,22 +179,6 @@ glm2=glmnet::glmnet(x=model.matrix(dt2$bin.AE~trt*sequence2,dt2),y=dt2$bin.AE,
 
 
 
-glm2=glm(factor(bin.AE)~trt*sequence2,data=dt2,family="binomial",
-         alpha=training$bestTune[1],lambda=training$bestTune[2])
-summary(glm2)
-#ints not sig, remove
-
-glm3=glm(factor(bin.AE)~trt+sequence2,data=dt2,family="binomial")
-summary(glm3)
-#sig diff in outcome btw seq 2 and 0
-
-
-
-
-lasso.cv=glmnet::cv.glmnet(x=model.matrix(factor(bin.AE)~trt+sequence2, dt2),
-                     y = dt2$bin.AE, family = "binomial", nfolds=10)
-lasso=glmnet::glmnet(x=model.matrix(factor(bin.AE)~trt+sequence2, dt2),
-                     y=dt2$bin.AE,lambda=lasso.cv$lambda.min,family="binomial")
 
 
 
