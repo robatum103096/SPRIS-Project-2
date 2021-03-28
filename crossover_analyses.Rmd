@@ -180,8 +180,6 @@ glm2=glmnet::glmnet(x=model.matrix(dt2$bin.AE~trt*sequence2,dt2),y=dt2$bin.AE,
 
 
 
-
-
 #ADHERENCE MODELING  
   
 #LME for sum(Adherence) ~ trt*seq2 + (1|ptid)
