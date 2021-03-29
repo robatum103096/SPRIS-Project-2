@@ -39,7 +39,9 @@ all.data=merge(endpt.data,bl.data,by="ptid") %>%
 
 ```{r}
 #Patient characteristics/demographics table
-
+table1::table1( ~ AE+Adhere+age+race+gender+bviral0+bviral1+bviral2+bviral3+
+                  bviral4+bviral5+sviral0+sviral1+sviral2+sviral3+
+                  sviral4+sviral5| treatment, data = alldata%>%dplyr::select(-ptid))
 ```
 
 ```{r}
@@ -54,17 +56,30 @@ ae.plot1=all.data %>%
   facet_grid(.~trt)+
   labs(y="No. of grade 2 or higher AEs",x="Week")
 
-ae.plot2=all.data %>%
-  dplyr::filter(AE.or.Adhere=="AE") %>%
-  dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
-  ggplot(aes(x=week,y=AE.or.adhere.val))+
-  geom_histogram(stat="identity")+
-  facet_grid(.~sequence1,
-             labeller=labeller(sequence1=c("1"="ABC","2"="CAB","3"="BCA",
-                                           "4"="BAC","5"="ACB","6"="CBA")))+
-  labs(y="No. of grade 2 or higher AEs",x="Week")
+safety.nonlin=alldata%>%
+  mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
+         week=str_sub(week,5,-1))%>%
+  group_by(week,treatment)%>%
+  summarise(sum.AE=sum(AE))%>%
+  ggplot(aes(x=week,y=sum.AE,col=treatment))+
+  geom_point()+geom_line(aes(group=treatment))+
+  labs(y="No. of grade 2 or higher AEs",x="Week",colour="Treatment")
 
-ae.plot1/ae.plot2
+ae.plot1/safety.nonlin
+
+
+
+
+
+#ae.plot2=all.data %>%
+ # dplyr::filter(AE.or.Adhere=="AE") %>%
+#  dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
+ # ggplot(aes(x=week,y=AE.or.adhere.val))+
+  #geom_histogram(stat="identity")+
+#  facet_grid(.~sequence1,
+ #            labeller=labeller(sequence1=c("1"="ABC","2"="CAB","3"="BCA",
+  #                                         "4"="BAC","5"="ACB","6"="CBA")))+
+  #labs(y="No. of grade 2 or higher AEs",x="Week")
 ```
 
 ```{r}
@@ -78,32 +93,6 @@ adherence.plot1=all.data %>%
   facet_grid(.~trt)+
   labs(y="Days of adherence",x="Week")
 
-adherence.plot2=all.data %>%
-  dplyr::filter(AE.or.Adhere=="Adhere") %>%
-  dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
-  ggplot(aes(x=week,y=AE.or.adhere.val))+
-  geom_histogram(stat="identity")+
-  facet_grid(.~sequence1,
-             labeller=labeller(sequence1=c("1"="ABC","2"="CAB","3"="BCA",
-                                           "4"="BAC","5"="ACB","6"="CBA")))+
-  labs(y="Days of adherence",x="Week")
-
-adherence.plot1/adherence.plot2
-```
-
-
-```{r}
-#safety vs. categorical week (nonlinear trends)
-safety.nonlin=alldata%>%
-  mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
-         week=str_sub(week,5,-1))%>%
-  group_by(week,treatment)%>%
-  summarise(sum.AE=sum(AE))%>%
-  ggplot(aes(x=week,y=sum.AE,col=treatment))+
-  geom_point()+geom_line(aes(group=treatment))+
-  labs(y="Sum of AEs",x="Week")
-
-#adherence vs. categorical week (nonlinear trends)
 safety.nonlin2=alldata%>%
   mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
          week=str_sub(week,5,-1))%>%
@@ -111,126 +100,49 @@ safety.nonlin2=alldata%>%
   summarise(sum.Adhere=sum(Adhere))%>%
   ggplot(aes(x=week,y=sum.Adhere,col=treatment))+
   geom_point()+geom_line(aes(group=treatment))+
-  labs(y="Sum of adherence days",x="Week")
+  labs(y="Days of Adherence",x="Week",colour="Treatment")
 
-safety.nonlin/safety.nonlin2
+adherence.plot1/safety.nonlin2
+
+
+
+
+#adherence.plot2=all.data %>%
+ # dplyr::filter(AE.or.Adhere=="Adhere") %>%
+  #dplyr::select(trt,AE.or.adhere.val,week,sequence1) %>%
+#  ggplot(aes(x=week,y=AE.or.adhere.val))+
+ # geom_histogram(stat="identity")+
+  #facet_grid(.~sequence1,
+#             labeller=labeller(sequence1=c("1"="ABC","2"="CAB","3"="BCA",
+ #                                          "4"="BAC","5"="ACB","6"="CBA")))+
+#  labs(y="Days of adherence",x="Week")
 ```
 
 
 ```{r}
-#MODELING FOR SAFETY
+#MODEL FOR SAFETY
 
-#LME for sum AEs ~ trt*seq2 + (1|ptid)
-dt1=all.data%>%
-  filter(AE.or.Adhere=="AE")%>%
-  mutate(week=as.numeric(week))%>%
-  group_by(week,trt,sequence2,ptid)%>%
-  summarise(sum.ae=sum(AE.or.adhere.val))
-
-m1=lme(sum.ae~trt*sequence2,data=dt1,random=~1|ptid,method="ML")
+#Logistic ME for AE ~ trt*seq2 + (1|ptid)
+m1=lme4::glmer(AE.or.adhere.val~trt+sequence2+week+(1|ptid),
+         data=all.data %>% filter(AE.or.Adhere=="AE")%>%
+           mutate(week=as.numeric(week)),
+         family="binomial")
 summary(m1)
 #ints all insig, so no sig carryover, so remove from model
-
-m2=lme(sum.ae~trt+sequence2,data=dt1,random=~1|ptid,method="ML")
-summary(m2)
-#sum of AEs across weeks not sig diff btw trts and seqs, so safety not sig diff
-#INTEPRET INTERCEPT???
-#random effect for patient is substantial bc SE is larger than all fixed effect estimates
-anova(m2,m1)
-#simpler model is adequate
-
-#LME for AE~trt*seq2+week(continuous)+(1|ptid)
-m3=lme(AE.or.adhere.val~trt*sequence2+week,
-       data=all.data %>% filter(AE.or.Adhere=="AE")%>%mutate(week=as.numeric(week)),
-       random=~1|ptid,method="ML")
-summary(m3)
-#no sig carryover, so drop interaction
-
-m4=lme(AE.or.adhere.val~trt+sequence2+week,
-       data=all.data %>% filter(AE.or.Adhere=="AE")%>%mutate(week=as.numeric(week)),
-       random=~1|ptid,method="ML")
-summary(m4)
-#no sig diff in AEs btw trts when adjusting for week and sequence
-#no sig diff in AEs btw seqs when adjusting for trt and week
-#sig diff/incr in AEs with incr week, holding all other vars constant???
-#considerable patient-level random effect since SD larger than all fixed model estimates
-anova(m4,m3)
-#simpler model adequate
-
-#Penalized log model for AE(binary)~trt*seq2
-
-#create binary variable
-dt2=all.data%>%
-  filter(AE.or.Adhere=="AE")%>%
-  group_by(ptid)%>%
-  mutate(bin.AE=ifelse(any(AE.or.adhere.val)==1,1,0))%>%
-  ungroup()%>%
-  mutate(bin.AE=factor(bin.AE))
-
-#set lambda and alpha ranges
-lambdas=10^seq(5,-5,length=100)
-alphas=seq(0,1,length=10)
-#select training method
-traincontrol=trainControl(method="repeatedCV",number=10,repeats=5)
-searchgrid=expand.grid(.alpha=alphas,.lambda=lambdas)
-set.seed(1234)
-#train
-training=train(bin.AE~factor(trt)*sequence2,data=dt2,
-               method="glmnet",tuneGrid=searchgrid,
-               trControl=traincontrol,standardize=T)
-#output two parameters
-training$bestTune 
-#all combs of alphas and lambdas yield same accuracy...
-
-#fit model with best parameters
-glm2=glmnet::glmnet(x=model.matrix(dt2$bin.AE~trt*sequence2,dt2),y=dt2$bin.AE,
-                    family="binomial",
-                    alpha=training$bestTune[1],lambda=training$bestTune[2])
+#random effect large
 
 
 
 
-glm2=glm(factor(bin.AE)~trt*sequence2,data=dt2,family="binomial",
-         alpha=training$bestTune[1],lambda=training$bestTune[2])
-summary(glm2)
-#ints not sig, remove
-
-glm3=glm(factor(bin.AE)~trt+sequence2,data=dt2,family="binomial")
-summary(glm3)
-#sig diff in outcome btw seq 2 and 0
 
 
-
-
-lasso.cv=glmnet::cv.glmnet(x=model.matrix(factor(bin.AE)~trt+sequence2, dt2),
-                     y = dt2$bin.AE, family = "binomial", nfolds=10)
-lasso=glmnet::glmnet(x=model.matrix(factor(bin.AE)~trt+sequence2, dt2),
-                     y=dt2$bin.AE,lambda=lasso.cv$lambda.min,family="binomial")
-
-
-
-#ADHERENCE MODELING  
+#ADHERENCE MODEL 
   
-#LME for sum(Adherence) ~ trt*seq2 + (1|ptid)
-dt5=all.data%>%
-  filter(AE.or.Adhere=="Adhere")%>%
-  group_by(week,trt,sequence2,ptid)%>%
-  summarise(sum.adhere=sum(AE.or.adhere.val))
-
-m5=lme(sum.adhere~trt*sequence2,data=dt5,random=~1|ptid,method="ML")
+#LME for Adherence ~ trt*seq2 + (1|ptid)
+m5=lme(AE.or.adhere.val~trt*sequence2+week,
+         data=all.data %>% filter(AE.or.Adhere=="Adhere")%>%
+           mutate(week=as.numeric(week)),random=~1|ptid,method="ML")
 summary(m5)
-#one ints sig (trt B and seq 2 compared to trt A and seq 0), so sig carryover
-#sig less total adherence days in B and C compared to A (shown in line plot)
-
-#LME for Adherence~trt*seq2+week(continuous)+(1|ptid)
-m6=lme(AE.or.adhere.val~trt*sequence2+week,
-       data=all.data %>% filter(AE.or.Adhere=="Adhere")%>%mutate(week=as.numeric(week)),
-       random=~1|ptid,method="ML")
-summary(m6)
-#one ints sig (trt B and seq 2 compared to trt A and seq 0), so sig carryover
-#week sig which implies adherence goes down as week adj for trt and seq and their int
-#sig less adherence days in B and C vs. A
-
 
 
 
