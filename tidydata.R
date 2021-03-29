@@ -5,14 +5,25 @@ library(dplyr)
 
 # baseline data
 bl.data <- read.csv("baseline.csv")[,-1] %>%
+  select(ptid, period1, period2, period3, 
+         age, race, gender) %>%
+  mutate(sequence = ifelse(period1 == "Pill A" & period2 == "Gel B" & period3 == "Gel C", 1, 
+                           ifelse(period1 == "Gel C" & period2 == "Pill A" & period3 == "Gel B", 2,
+                                  ifelse(period1 == "Gel B" & period2 == "Gel C" & period3 == "Pill A", 3,
+                                         ifelse(period1 == "Gel B" & period2 == "Pill A" & period3 == "Gel C", 4,
+                                                ifelse(period1 == "Pill A" & period2 == "Gel C" & period3 == "Gel B", 5, 6)))))) %>%
   reshape(direction='long', varying = c("period1", "period2", "period3"), 
           idvar = "ptid",
           timevar = c("period"), 
-          times=c("period1", "period2", "period3"), 
+          times=c("Period 1", "Period 2", "Period 3"), 
           v.names = "treatment")
 rownames(bl.data) <- NULL
+# pk data
+pk.data <- read.csv("baseline.csv")[,-1] %>%
+  select(-period1, -period2, -period3, -age, -race, -gender)
 # endpoint data
 endpt.data <- read.csv("endpoints.csv")[,-(2:4)]
+
 
 # adverse event pillA
 endpt.data.ae.pillA <- endpt.data[,c(1,2:5)] %>%
@@ -91,36 +102,36 @@ endpt.data.ad.gelC$treatment <- rep("Gel C", nrow(endpt.data.ad.gelC))
 endpt.data.ad.long <- rbind(endpt.data.ad.pillA, endpt.data.ad.gelB, endpt.data.ad.gelC)
 endpt.data.long <- left_join(endpt.data.ae.long, endpt.data.ad.long, by = c("ptid", "week", "treatment"))
 
-all.data <- left_join(bl.data, endpt.data.long, by = c("ptid", "treatment")) %>%
-  select(ptid, period, treatment, week, AE, Adhere, everything())
+prim.data <- left_join(bl.data[, c("ptid", "sequence", "period", "treatment", "age", "race", "gender")], 
+                      endpt.data.long, by = c("ptid", "treatment")) %>%
+  select(ptid, sequence, period, treatment, week, AE, Adhere, everything())
 
-write.csv(all.data, file = "alldata.csv")
+write.csv(prim.data, file = "prim_data.csv")
 
-pk.data1 <- all.data %>%
-  gather(key = viral_time, value = viral_blood, bviral0, bviral1, bviral2,
-         bviral3, bviral4, bviral5, bviral6) %>%
-  select(-sviral0, -sviral1, -sviral2,
-         -sviral3, -sviral4, -sviral5, -sviral6)
-pk.data1$viral_time <- factor(pk.data1$viral_time, 
-                              levels = c("bviral0", "bviral1", "bviral2", "bviral3", 
-                                         "bviral4", "bviral5", "bviral6"))
-levels(pk.data1$viral_time) <- 0:6
 
-pk.data2 <- all.data %>%
-  gather(key = viral_time, value = viral_skin, sviral0, sviral1, sviral2,
-         sviral3, sviral4, sviral5, sviral6) %>%
-  select(-bviral0, -bviral1, -bviral2,
-         -bviral3, -bviral4, -bviral5, -bviral6)
-pk.data2$viral_time <- factor(pk.data2$viral_time, 
-                              levels = c("sviral0", "sviral1", "sviral2", "sviral3", 
-                                         "sviral4", "sviral5", "sviral6"))
-levels(pk.data2$viral_time) <- 0:6
+prim.cumweek.data <- prim.data %>%
+  group_by(ptid, sequence, period, treatment, age, race, gender) %>%
+  summarise(AEsum = sum(AE), Adheresum = sum(Adhere)) %>%
+  ungroup()
 
-pk.data <- full_join(pk.data1, pk.data2, 
-                     by = c("ptid", "period", "treatment", "week", "viral_time",
-                            "AE", "Adhere", "age", "race", "gender")) %>%
-  gather(key = position, value = viral, viral_skin, viral_blood)
-pk.data$position <- factor(pk.data$position, levels = c("viral_blood", "viral_skin"))
-levels(pk.data$position) <- c("blood", "skin")
+write.csv(prim.cumweek.data, file = "prim_cumweek_data.csv")
 
-write.csv(pk.data, file = "pkdata.csv")
+
+pk.data.blood.long <- rbind(data.frame(ptid = pk.data$ptid, period = rep("Period 1", length(pk.data$ptid)),
+           viral_blood = pk.data$bviral1 - pk.data$bviral0),
+      data.frame(ptid = pk.data$ptid, period = rep("Period 2", length(pk.data$ptid)),
+                 viral_blood = pk.data$bviral3 - pk.data$bviral2),
+      data.frame(ptid = pk.data$ptid, period = rep("Period 3", length(pk.data$ptid)),
+                 viral_blood = pk.data$bviral5 - pk.data$bviral4))
+pk.data.skin.long <- rbind(data.frame(ptid = pk.data$ptid, period = rep("Period 1", length(pk.data$ptid)),
+                                       viral_skin = pk.data$sviral1 - pk.data$sviral0),
+                            data.frame(ptid = pk.data$ptid, period = rep("Period 2", length(pk.data$ptid)),
+                                       viral_skin = pk.data$sviral3 - pk.data$sviral2),
+                            data.frame(ptid = pk.data$ptid, period = rep("Period 3", length(pk.data$ptid)),
+                                       viral_skin = pk.data$sviral5 - pk.data$sviral4))
+
+
+sec.data <- left_join(prim.cumweek.data, pk.data.skin.long, by = c("ptid", "period")) %>%
+  left_join(pk.data.blood.long, by = c("ptid", "period"))
+
+write.csv(sec.data, file = "secdata.csv")
