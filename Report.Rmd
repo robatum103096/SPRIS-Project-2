@@ -1,0 +1,197 @@
+---
+title: "Safety, Adherence, and Pharmacokinetics from the Phase II MATIK Trial"
+author: "Robert Tumasian III (rat2134)"
+date: "April 5, 2021"
+output: pdf_document
+---
+
+## Introduction
+
+MATIK is a highly infectious virus that can cause severe skin rashes and other serious complications. Pharmaceutical companies and other laboratories are actively working to develop treatments to mitigate this disease, and three promising interventions (Pill A, Gel B, and Gel C) have been identified. Due to the urgency of this public health concern, a Phase II, multi-center, randomized, open-label, three-arm crossover trial was conducted to collect data for safety and adherence profiling for each treatment using the maximum tolerated doses that were determined in prior Phase I studies (Table 1).
+
+## Methods
+
+### Study Design
+
+The Phase II MATIK trial was a multi-center, randomized, open-label, three-arm crossover study that recruited 180 infected patients from several different healthcare facilities. Each patient was randomized to one of six treatment sequences, consisting of three treatment administration periods lasting four weeks separated by one week washout periods and concluding with a follow-up visit about one week after the last period (Table 2). Including washouts was essential for minimizing potential carryover effects. Total trial duration was approximately 15 weeks.
+
+### Study Objectives & Endpoints
+
+The primary objectives of this study are to evaluate and compare the safety and adherence profiles of the three treatments. This will allow us to determine which treatments are safest and which treatments are most likely to be used properly in the long-term, since MATIK is a chronic condition. Our primary endpoints for safety and adherence were the number of grade 2 or higher adverse events (AEs) that were experienced each week and the number of days each week that patients used the treatments as prescribed, respectively.
+
+The secondary objectives of this study are to (1) assess and compare the pharmacokinetics (PK) of each treatment, (2) measure a potential relationship between PK and safety and adherence, and (3) identify possible demographics associated with adherence by product (pill and gels) and regimen (one vs. three times a day). Our secondary endpoint for investigating pharmacokinetics was the change in viral load in each period from baseline to four weeks from both blood plasma and skin tissue. Demographics included baseline age, gender, and race.
+
+### Data Description
+Our data set contained clinical and demographic data from 180 MATIK trial participants with no missingness. Our variables of interest were:
+
+* Period (treatment assignment)
+* Age (18-45 years old)
+* Gender (female or male)
+* Race (white, black, or other)
+* Viral loads (from blood and skin) [*secondary endpoint*]
+* Number of grade 2 or higher AEs [*primary endpoint*]
+* Days of adherence [*primary endpoint*]
+* Sequence 1 (1-6; denoting sequences "ABC", "CAB", "BCA", "BAC", "ACB", and "CBA", respectively)
+* Sequence 2 (0-2; indicating sequences with "AB", "AC", and "BC" adjacent in the first two periods)
+
+
+### Exploratory Data Analysis, Modeling, & Assumptions
+
+For the primary objectives, we visualized the number of AEs and adherence days by week for each treatment with histograms and line plots. Then, logistic and linear mixed effects models (with random intercepts for patient) were built to identify if safety and adherence were associated with treatment, sequence, and week.
+
+For the secondary objectives, we created violin and line plots to analyze changes in viral loads from the blood and skin from baseline to four weeks for each treatment. Afterwards, linear mixed effects models (with random intercepts for patient) were constructed to consider relationships between changes in the viral loads and AEs, adherence, treatment, sequence, and demographics.
+
+The assumptions for the linear mixed effects model are:
+
+1. Linearity between the outcome and each continuous variable
+2. Little to no multicollinearity between the predictors
+3. Fixed and random effect residuals are independent, normally distributed, and have constant variance
+
+The assumtions for the logistic mixed effects model are the same as above, except linearity is required between each continuous variable and the log odds of the outcome rather than the outcome itself. In addition, carryover effects were included in all of our initial models as the interaction between treatment and sequence 2. The final models presented exclude this interaction term if no significant carryover effect was found.
+
+## Results
+
+### Primary Objectives
+
+#### Safety 
+
+Regarding safety, we found that Pill A, Gel B, and Gel C had 15, 20, and 13 total AEs, respectively, across all sequences at trial end (Figure 1, top left). Furthermore, trends in AEs for each treatment across week were nonlinear (Figure 1, bottom left). Our final logistic mixed effects model for safety profiling includes fixed effects for sequence2, treatment, and week, and a random effect for each patient. This model can be expressed as:
+
+\begin{center}
+$log(Pr(Y_{ijkl}))=sequence2_{ij}+treatment_{ijk}+week_{ijkl}+\alpha_i$,
+\end{center}
+
+where $i$, $j$, $k$, and $l$ denote subject, sequence2, treatment period, and week (continuous), respectively, where $i=1,...,180$, $j=1,2,3$, $k=1,2,3$, and $l=1,2,3,4$. Here, $\alpha_i$ denotes the random intercepts for each patient and $Y_{ijkl}$ is a binary variable indicating whether or not patient $i$ experienced an AE in sequence2 $j$, treatment $k$, and week $l$. Our final model results suggest that the probability of AE occurrence is not significantly different between the three treatments or the three sequences (Table 3). However, significance was found for week with a positive log odds ratio estimate (p=0.012), meaning that for every one unit increase in week, patients were $(1-e^{0.356})*100\%=42.8\%$ more likely to experience an AE, adjusting for sequence2, treatment, and patient-level random effects (Table 3). However, this is generally expected in a clinical trial, since a patient's likelihood of having an AE increases as they continue to use an experimental treatment over the course of the study. Additionally, no substantial carryover effect was found; thus, our final model does not include the interaction between treatment and sequence2. Interestingly, the standard deviation of the random intercepts for patient were considerably large ($\approx$1.65), suggesting that patient-specific differences not explained by our fixed effects may play a considerable role in changes in the safety.
+
+#### Adherence
+
+For adherence, we found that adherence was highest for Pill A and lowest for Gel B each week across all sequences (Figure 1, top right and bottom right). Contrary to the trends in safety, the adherence trajectories across week exhibited more linear trends (Figure 1, bottom right).Our final linear mixed effects model for evaluating adherence includes fixed effects for sequence2, treatment, week (continuous), and carryover, since we found a statistically significant interaction between treatment and sequence2 (p=0.043) (Table 3). A random effect for each patient was also included. This model can be expressed as:
+
+\begin{center}
+$Y_{ijkl}=sequence2_{ij}*treatment_{ijk}+week_{ijkl}+\alpha_i$,
+\end{center}
+
+where $i$, $j$, $k$, $l$, and $\alpha_i$ are defined the same as in our safety profiling model given above. Here, $Y_{ijkl}$ denotes the number of adherence days for patient $i$ in sequence2 $j$, treatment $k$, and week $l$ (ranging from 0-7). Our final model results indicate that adherence is significantly different between the treatment groups (GelB and GelC p<0.001) and by week (p<0.001), but not by sequence (Table 3). Specifically, patients using Gel B and Gel C were $(1-e^{-1.129})*100\%=66.7\%$ and $(1-e^{-0.829})*100\%=56.4\%$ more likely to adhere to their treatment schedules, respectively, compared to patients using Pill A, adjusting for sequence2, carryover, and patient-level random effects (Table 3). Furthermore, for every one unit increase in week, patients were $(1-e^{-1.129})*100\%=17\%$ more likely to adhere to their treatment regimen, adjusting for treatment, sequence2, carryover, and patient-level random effects (Table 3). Again, the significance of week is expected, since patients in a clinical trial are generally more likely to disobey treatment schedules as they continue to participate in the study. Similarly to our final model for safety assessment above, the standard deviaton of the random intercepts for patient were fairly large ($\approx$1.18), suggesting that changes in adherence may be due to patient-specific differences not captured by our fixed effects.
+
+### Secondary Objectives
+
+#### Pharmacokinetics (PK)
+
+Change in viral loads from both the blood and the skin were not notably different between the three treatments.
+
+## Summary??? (discussion slide)
+ 
+## Phase III Recommendations
+
+
+
+## Appendix
+
+### Tables
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+ & Recommended Dosage \& Administration Schedule \\ \hline
+Pill A & 200 mg / day for 4 weeks \\ \hline
+Gel B & 1\% gel concentration; applied three times daily for 4 weeks \\ \hline
+Gel C & 2\% gel concentration; applied once daily for 4 weeks \\ \hline
+\end{tabular}
+\end{table}
+Table 1: Recommended dosage and administration schedules for each treatment in the Phase II MATIK trial, based on previous Phase I studies.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Sequence & Period 1 & Washout & Period 2 & Washout & Period 3 & Follow-up \\ \hline
+1        & Pill A   &         & Gel B    &         & Gel C    &           \\ \hline
+2        & Gel C    &         & Pill A   &         & Gel B    &           \\ \hline
+3        & Gel B    &         & Gel C    &         & Pill A   &           \\ \hline
+4        & Gel B    &         & Pill A   &         & Gel C    &           \\ \hline
+5        & Pill A   &         & Gel C    &         & Gel B    &           \\ \hline
+6        & Gel C    &         & Gel B    &         & Pill A   &           \\ \hline
+\end{tabular}
+\end{table}
+Table 2: Breakdown of all six treatment sequences in the Phase II MATIK trial. Periods last four weeks and washouts last about one week. Follow-up occurs about one week after the last period.
+
+
+
+
+### Figures
+
+```{r setup, include=FALSE}
+#load libraries
+library(tidyverse)
+library(patchwork)
+library(nlme)
+library(caret)
+
+#load data
+bl.data=read.csv("baseline.csv")[,-c(1,3:5)]
+endpt.data=read.csv("endpoints.csv")
+alldata=read.csv("alldata.csv")
+```
+
+```{r, include=FALSE}
+#merge and tidy data (NO MISSINGNESS, n=30 in each of the 6 sequences)
+all.data=merge(endpt.data,bl.data,by="ptid") %>%
+  mutate(sequence1=factor(ifelse(period1=="Pill A" & period2=="Gel B" & period3=="Gel C",1,
+                  ifelse(period1=="Gel C" & period2=="Pill A" & period3=="Gel B",2,
+                  ifelse(period1=="Gel B" & period2=="Gel C" & period3=="Pill A",3,
+                  ifelse(period1=="Gel B" & period2=="Pill A" & period3=="Gel C",4,
+                  ifelse(period1=="Pill A" & period2=="Gel C" & period3=="Gel B",5,6)))))),
+         sequence2=factor(ifelse(sequence1==1 | sequence1==4,0,
+                          ifelse(sequence1==2 | sequence1==5,1,2)))) %>%
+  pivot_longer(cols=AE_pillA_week1:Adhere_gelC_week4,names_to=c("AE.or.Adhere","trt","week"),
+               names_pattern="(..)_(.*)_(.*)",values_to="AE.or.adhere.val") %>%
+  mutate(AE.or.Adhere=ifelse(AE.or.Adhere=="re","Adhere","AE"),
+         week=str_sub(week,5,-1),
+         trt=factor(trt,levels=c("pillA","gelB","gelC")))
+```
+
+```{r,echo=FALSE,warning=FALSE}
+#PRIMARY OBJECTIVES (safety and adherence)
+
+#Safety
+ae.plot1=all.data %>%
+  dplyr::filter(AE.or.Adhere=="AE") %>%
+  dplyr::select(trt,AE.or.adhere.val,week) %>%
+  ggplot(aes(x=week,y=AE.or.adhere.val))+
+  geom_histogram(stat="identity")+
+  facet_grid(.~trt)+
+  labs(y="No. of grade 2 or higher AEs",x="Week")
+
+ae.plot2=alldata%>%
+  mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
+         week=str_sub(week,5,-1))%>%
+  group_by(week,treatment)%>%
+  summarise(sum.AE=sum(AE))%>%
+  ggplot(aes(x=week,y=sum.AE,col=treatment))+
+  geom_point()+geom_line(aes(group=treatment))+
+  labs(y="No. of grade 2 or higher AEs",x="Week",colour="Treatment")+ 
+  theme(legend.position = "none")
+
+#Adherence (ACROSS ALL 6 SEQUENCES)
+adherence.plot1=all.data %>%
+  dplyr::filter(AE.or.Adhere=="Adhere") %>%
+  dplyr::select(trt,AE.or.adhere.val,week) %>%
+  ggplot(aes(x=week,y=AE.or.adhere.val))+
+  geom_histogram(stat="identity")+
+  facet_grid(.~trt)+
+  labs(y="Days of adherence",x="Week")
+
+adherence.plot2=alldata%>%
+  mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
+         week=str_sub(week,5,-1))%>%
+  group_by(week,treatment)%>%
+  summarise(sum.Adhere=sum(Adhere))%>%
+  ggplot(aes(x=week,y=sum.Adhere,col=treatment))+
+  geom_point()+geom_line(aes(group=treatment))+
+  labs(y="Days of adherence",x="Week",colour="Treatment")
+
+(ae.plot1+adherence.plot1)/(ae.plot2+adherence.plot2)
+```
+
+Figure 1: Number of AEs and number of adherence days for each treatment by week across all sequences.

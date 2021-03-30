@@ -39,9 +39,8 @@ all.data=merge(endpt.data,bl.data,by="ptid") %>%
 
 ```{r}
 #Patient characteristics/demographics table
-table1::table1( ~ AE+Adhere+age+race+gender+bviral0+bviral1+bviral2+bviral3+
-                  bviral4+bviral5+sviral0+sviral1+sviral2+sviral3+
-                  sviral4+sviral5| treatment, data = alldata%>%dplyr::select(-ptid))
+table1::table1( ~ age+race+factor(gender)|treatment,alldata,
+                overall=NULL)
 ```
 
 ```{r}
@@ -100,7 +99,7 @@ safety.nonlin2=alldata%>%
   summarise(sum.Adhere=sum(Adhere))%>%
   ggplot(aes(x=week,y=sum.Adhere,col=treatment))+
   geom_point()+geom_line(aes(group=treatment))+
-  labs(y="Days of Adherence",x="Week",colour="Treatment")
+  labs(y="Days of adherence",x="Week",colour="Treatment")
 
 adherence.plot1/safety.nonlin2
 
