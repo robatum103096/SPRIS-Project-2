@@ -1,0 +1,14 @@
+---
+title: "Secondary Objectives"
+author: "Baoyi Shi"
+date: "3/30/2021"
+output: pdf_document
+---
+
+# Results
+
+The skin viral load change is significantly influenced by treatments, occurrence of adverse events and the number of adherence days, after accounting for age, race and gender. There also exist an interaction effect between treatments and adverse events. Specifically, Pill A is significantly more effective than Gel B and Gel C. On average, when there is no adverse event, Pill A reduces the skin viral load 19.00 (95% CI: [11.31, 26.69]) more units than Gel B does and it reduces the skin viral load 32.71 (95% CI: [25.36, 40.07]) more units than Gel C does. Adherence has a positive effect on the skin viral load decrease. With one more adherence day, the skin viral load tends to decrease 2.40 (95% CI: [1.69, 3.12]) more units. Adverse events have a negative effect on the skin viral load decrease. Additionally, there is a significant interaction effect between treatments and adverse events on the skin viral load. The skin viral load of a subject in a period with Pill A but without any adverse events tends to decrease 31.89 (95% CI: [14.50, 49.29]) more units than in a period with Pill A and adverse events. The skin viral load of a subject in a period with Gel B but without any adverse events tends to decrease 66.72 (95% CI: [25.57, 107.88]) more units than in a period with Gel B and adverse events. The skin viral load of a subject in a period with Gel C but without any adverse events tends to decrease 62.59 (95% CI: [20.02, 105.16]) more units than in a period with Gel C and adverse events. 
+
+For the blood viral load, there is no significant effect of adherence. When there is no adverse event, Pill A is not significantly different from Gel B in reducing the blood viral load, but Pill A is significantly more effective than Gel C (42.10, 95% CI:, [11.07, 73.14]). For Pill A and Gel C, there is no significant effect of adverse events. However, the blood viral load of a subject in a period with Gel B but without any adverse events tends to decrease 34.38 (95% CI: [7.41, 61.36]) more units than in a period with Gel B and adverse events. 
+
+Product (pill or gel), regimen (once a day or three times a day) and age have significant effects on adherence. However, the effect of age doesn't differ by product or regimen. Specifically, the odds ratio of adherence of pill versus gel is 4.67 (95% CI: [3.99, 5.50]). The odds ratio of adherence of three times a day versus once a day is 0.71 (95% CI: [0.63, 0.80]). With one year change in age, the odds ratio of adherence is 1.22 (95% CI: [1.19, 1.25]). After combining product and regimen into treatments, treatment has a significant effect on adherence. The odds ratio of adherence of Pill A verses Gel B is 6.57 (95% CI: [5.61, 7.72]) and the odds ratio of adherence of Pill A verses Gel C is 4.67 (95% CI: [3.99, 5.50]).

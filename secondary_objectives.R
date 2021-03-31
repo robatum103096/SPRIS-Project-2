@@ -3,6 +3,7 @@ rm(list=ls())
 library(tidyverse)
 library(dplyr)
 library(nlme)
+library(lme4)
 library(ggplot2)
 library(pheatmap)
 library(gridExtra)
@@ -163,21 +164,34 @@ dev.off()
 
  
 LMM1 <- lme(viral_skin ~ treatment + AEsum + Adheresum + age + race + gender + 
-              + treatment*AEsum + treatment*age, 
+              + treatment*AEsum, 
             random = ~1| ptid, data = secdata) 
 # summary(LMM1)
+int1 <- intervals(LMM1)
+int$fixed[4,]+int$fixed[10,]
+int$fixed[4,]+int$fixed[11,]
+plot(LMM1)
+qqnorm(LMM1)
 
 LMM2 <- lme(viral_blood ~ treatment +
               AEsum + Adheresum + age + race + gender + 
               treatment*Adheresum  + treatment*AEsum, 
             random = ~1| ptid, data = secdata) 
 # summary(LMM2)
+int2 <- intervals(LMM2)
+int2$fixed[4,]+int2$fixed[12,]
+int2$fixed[4,]+int2$fixed[13,]
+int2$fixed[5,]+int2$fixed[10,]
+int2$fixed[5,]+int2$fixed[11,]
 
-LMM3 <- lme(Adheresum ~ treatment + age + treatment*age, 
-            random = ~1| ptid, data = secdata, method='REML') 
+secdata$AdhereF <- 28 - secdata$Adheresum
+
+LMM3 <- glmer(cbind(Adheresum, AdhereF) ~ treatment + age + (1| ptid), 
+              data = secdata, family = binomial) 
 # summary(LMM3)
+confint(LMM3)
 
-LMM4 <- lme(Adheresum ~ pill + regimen + age + age*pill + age*regimen, 
-            random = ~1| ptid, data = secdata, method='REML') 
+LMM4 <- glmer(cbind(Adheresum, AdhereF) ~ pill + regimen + age + 
+                (1| ptid), data = secdata, family = binomial) 
 # summary(LMM4)
-
+confint(LMM4)
