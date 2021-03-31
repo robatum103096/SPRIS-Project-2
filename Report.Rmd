@@ -5,37 +5,37 @@ date: "April 5, 2021"
 output: pdf_document
 ---
 
-## Introduction
+# Introduction
 
 MATIK is a highly infectious virus that can cause severe skin rashes and other serious complications. Pharmaceutical companies and other laboratories are actively working to develop treatments to mitigate this disease, and three promising interventions (Pill A, Gel B, and Gel C) have been identified. Due to the urgency of this public health concern, a Phase II, multi-center, randomized, open-label, three-arm crossover trial was conducted to collect data for safety and adherence profiling for each treatment using the maximum tolerated doses that were determined in prior Phase I studies (Table 1).
 
-## Methods
+# Methods
 
-### Study Design
+## Study Design
 
-The Phase II MATIK trial was a multi-center, randomized, open-label, three-arm crossover study that recruited 180 infected patients from several different healthcare facilities. Each patient was randomized to one of six treatment sequences, consisting of three treatment administration periods lasting four weeks separated by one week washout periods and concluding with a follow-up visit about one week after the last period (Table 2). Including washouts was essential for minimizing potential carryover effects. Total trial duration was approximately 15 weeks.
+The Phase II MATIK trial was a multi-center, randomized, open-label, three-arm crossover study that recruited 180 infected patients from several different healthcare facilities. Each patient was randomized to one of six treatment sequences, consisting of three treatment administration periods lasting four weeks separated by one week washout periods and concluding with a follow-up visit about one week after the last period (Table 2). Washouts were essential for minimizing potential carryover effects. Total trial duration was approximately 15 weeks.
 
-### Study Objectives & Endpoints
+## Study Objectives & Endpoints
 
-The primary objectives of this study are to evaluate and compare the safety and adherence profiles of the three treatments. This will allow us to determine which treatments are safest and which treatments are most likely to be used properly in the long-term, since MATIK is a chronic condition. Our primary endpoints for safety and adherence were the number of grade 2 or higher adverse events (AEs) that were experienced each week and the number of days each week that patients used the treatments as prescribed, respectively.
+The primary objectives of this study were to evaluate and compare the safety and adherence profiles of the three treatments. This will allow us to determine which treatments are safest and which treatments are most likely to be used properly in the long-term, since MATIK is a chronic condition. Our primary endpoints for safety and adherence were the number of grade 2 or higher adverse events (AEs) that were experienced each week and the number of days each week that patients used the treatments as prescribed, respectively.
 
-The secondary objectives of this study are to (1) assess and compare the pharmacokinetics (PK) of each treatment, (2) measure a potential relationship between PK and safety and adherence, and (3) identify possible demographics associated with adherence by product (pill and gels) and regimen (one vs. three times a day). Our secondary endpoint for investigating pharmacokinetics was the change in viral load in each period from baseline to four weeks from both blood plasma and skin tissue. Demographics included baseline age, gender, and race.
+The secondary objectives of this study were to (1) assess and compare the pharmacokinetics (PK) of each treatment, (2) measure a potential relationship between PK and safety and adherence, and (3) identify possible demographics associated with adherence by product (pill and gels) and regimen (one vs. three times a day). Our secondary endpoint for investigating pharmacokinetics was the change in viral load in each period from baseline to four weeks from both blood plasma and skin tissue. Demographics included age, gender, and race at baseline.
 
-### Data Description
+## Data Description
 Our data set contained clinical and demographic data from 180 MATIK trial participants with no missingness. Our variables of interest were:
 
 * Period (treatment assignment)
 * Age (18-45 years old)
 * Gender (female or male)
 * Race (white, black, or other)
-* Viral loads (from blood and skin) [*secondary endpoint*]
-* Number of grade 2 or higher AEs [*primary endpoint*]
-* Days of adherence [*primary endpoint*]
-* Sequence 1 (1-6; denoting sequences "ABC", "CAB", "BCA", "BAC", "ACB", and "CBA", respectively)
-* Sequence 2 (0-2; indicating sequences with "AB", "AC", and "BC" adjacent in the first two periods)
+* Viral loads (from blood and skin) [*Secondary endpoint*]
+* Number of grade 2 or higher AEs [*Primary endpoint*]
+* Days of adherence [*Primary endpoint*]
+* Sequence1 (1-6; denoting sequences "ABC", "CAB", "BCA", "BAC", "ACB", and "CBA", respectively)
+* Sequence2 (0-2; indicating sequences with "AB", "AC", and "BC" adjacent in the first two periods)
 
 
-### Exploratory Data Analysis, Modeling, & Assumptions
+## Exploratory Data Analysis, Modeling, & Assumptions
 
 For the primary objectives, we visualized the number of AEs and adherence days by week for each treatment with histograms and line plots. Then, logistic and linear mixed effects models (with random intercepts for patient) were built to identify if safety and adherence were associated with treatment, sequence, and week.
 
@@ -47,47 +47,71 @@ The assumptions for the linear mixed effects model are:
 2. Little to no multicollinearity between the predictors
 3. Fixed and random effect residuals are independent, normally distributed, and have constant variance
 
-The assumtions for the logistic mixed effects model are the same as above, except linearity is required between each continuous variable and the log odds of the outcome rather than the outcome itself. In addition, carryover effects were included in all of our initial models as the interaction between treatment and sequence 2. The final models presented exclude this interaction term if no significant carryover effect was found.
+The assumtions for the logistic mixed effects model are the same as above, except linearity is required between each continuous variable and the log odds of the outcome rather than the outcome itself. In addition, carryover effects were included in all of our initial models as the interaction between treatment and sequence2. The final models presented exclude this interaction term if no significant carryover effect was found.
 
-## Results
+# Results
 
-### Primary Objectives
+## Primary Objectives
 
-#### Safety 
+### Safety 
 
 Regarding safety, we found that Pill A, Gel B, and Gel C had 15, 20, and 13 total AEs, respectively, across all sequences at trial end (Figure 1, top left). Furthermore, trends in AEs for each treatment across week were nonlinear (Figure 1, bottom left). Our final logistic mixed effects model for safety profiling includes fixed effects for sequence2, treatment, and week, and a random effect for each patient. This model can be expressed as:
 
 \begin{center}
-$log(Pr(Y_{ijkl}))=sequence2_{ij}+treatment_{ijk}+week_{ijkl}+\alpha_i$,
+$log(Pr(Y_{ijkl}))=sequence2_{ij}+trt_{ijk}+week_{ijkl}+\alpha_i$,
 \end{center}
 
-where $i$, $j$, $k$, and $l$ denote subject, sequence2, treatment period, and week (continuous), respectively, where $i=1,...,180$, $j=1,2,3$, $k=1,2,3$, and $l=1,2,3,4$. Here, $\alpha_i$ denotes the random intercepts for each patient and $Y_{ijkl}$ is a binary variable indicating whether or not patient $i$ experienced an AE in sequence2 $j$, treatment $k$, and week $l$. Our final model results suggest that the probability of AE occurrence is not significantly different between the three treatments or the three sequences (Table 3). However, significance was found for week with a positive log odds ratio estimate (p=0.012), meaning that for every one unit increase in week, patients were $(1-e^{0.356})*100\%=42.8\%$ more likely to experience an AE, adjusting for sequence2, treatment, and patient-level random effects (Table 3). However, this is generally expected in a clinical trial, since a patient's likelihood of having an AE increases as they continue to use an experimental treatment over the course of the study. Additionally, no substantial carryover effect was found; thus, our final model does not include the interaction between treatment and sequence2. Interestingly, the standard deviation of the random intercepts for patient were considerably large ($\approx$1.65), suggesting that patient-specific differences not explained by our fixed effects may play a considerable role in changes in the safety.
+where $i$, $j$, $k$, and $l$ denote subject, sequence2, treatment period, and week (continuous), respectively, with $i=1,...,180$, $j=1,2,3$, $k=1,2,3$, and $l=1,2,3,4$. Here, $\alpha_i$ denotes the random intercepts for each patient and $Y_{ijkl}$ is a binary variable indicating whether or not patient $i$ experienced an AE in sequence2 $j$, treatment $k$, and week $l$. Our final model results suggest that the probability of AE occurrence is not significantly different between the three treatments or the three sequences (Table 3). However, significance was found for week with a positive log odds ratio estimate (p=0.012, 95\% CI: [0.079,0.633]), meaning that for every one unit increase in week, patients were $(1-e^{0.356})*100\%=42.8\%$ more likely to experience an AE, adjusting for sequence2, treatment, and patient-level random effects (Table 3). However, this is generally expected in a clinical trial, since a patient's likelihood of having an AE increases as they continue to use an experimental treatment over the course of the study. Additionally, no substantial carryover effect was found; thus, our final model does not include the interaction between treatment and sequence2. Interestingly, the standard deviation of the random intercepts for patient was considerably large (1.65), suggesting that patient-specific differences not explained by our fixed effects may play a considerable role in changes in safety.
 
-#### Adherence
+### Adherence
 
-For adherence, we found that adherence was highest for Pill A and lowest for Gel B each week across all sequences (Figure 1, top right and bottom right). Contrary to the trends in safety, the adherence trajectories across week exhibited more linear trends (Figure 1, bottom right).Our final linear mixed effects model for evaluating adherence includes fixed effects for sequence2, treatment, week (continuous), and carryover, since we found a statistically significant interaction between treatment and sequence2 (p=0.043) (Table 3). A random effect for each patient was also included. This model can be expressed as:
+We found that adherence was highest for Pill A and lowest for Gel B each week across all sequences (Figure 1, top right and bottom right). Contrary to the trends in safety, the adherence trajectories across week exhibited more linear trends (Figure 1, bottom right). Our final linear mixed effects model for evaluating adherence includes fixed effects for sequence2, treatment, week (continuous), and carryover, since we found a statistically significant interaction between treatment and sequence2 (p=0.043, 95\% CI: [0.008,0.451]) (Table 3). A random effect for each patient was also included. This model can be expressed as:
 
 \begin{center}
-$Y_{ijkl}=sequence2_{ij}*treatment_{ijk}+week_{ijkl}+\alpha_i$,
+$Y_{ijkl}=sequence2_{ij}*trt_{ijk}+week_{ijkl}+\alpha_i$,
 \end{center}
 
-where $i$, $j$, $k$, $l$, and $\alpha_i$ are defined the same as in our safety profiling model given above. Here, $Y_{ijkl}$ denotes the number of adherence days for patient $i$ in sequence2 $j$, treatment $k$, and week $l$ (ranging from 0-7). Our final model results indicate that adherence is significantly different between the treatment groups (GelB and GelC p<0.001) and by week (p<0.001), but not by sequence (Table 3). Specifically, patients using Gel B and Gel C were $(1-e^{-1.129})*100\%=66.7\%$ and $(1-e^{-0.829})*100\%=56.4\%$ more likely to adhere to their treatment schedules, respectively, compared to patients using Pill A, adjusting for sequence2, carryover, and patient-level random effects (Table 3). Furthermore, for every one unit increase in week, patients were $(1-e^{-1.129})*100\%=17\%$ more likely to adhere to their treatment regimen, adjusting for treatment, sequence2, carryover, and patient-level random effects (Table 3). Again, the significance of week is expected, since patients in a clinical trial are generally more likely to disobey treatment schedules as they continue to participate in the study. Similarly to our final model for safety assessment above, the standard deviaton of the random intercepts for patient were fairly large ($\approx$1.18), suggesting that changes in adherence may be due to patient-specific differences not captured by our fixed effects.
+where $i$, $j$, $k$, $l$, and $\alpha_i$ are defined the same as in our safety model above. Here, $Y_{ijkl}$ denotes the number of adherence days for patient $i$ in sequence2 $j$, treatment $k$, and week $l$ (ranging from 0-7). Our final model results indicate that adherence is significantly different between the treatment groups (GelB p<0.001, 95\% CI: [-1.286,-0.972]; GelC p<0.001, 95\% CI: [-0.986,-0.672]) and by week (p<0.001, 95\% CI: [-0.220,-0.154]), but not by sequence (Table 3). Specifically, since both estimates are negative, patients using Gel B and Gel C were less likely to adhere to their treatment schedules compared to patients using Pill A, adjusting for sequence2, carryover, and patient-level random effects (Table 3). Furthermore, due to the negative estimate for week, patients were less likely to adhere to their treatment regimen as they progressed in the trial, adjusting for treatment, sequence2, carryover, and patient-level random effects (Table 3). Again, the significance of week is expected, since patients in a clinical trial are generally more likely to disobey treatment schedules as they continue to participate in the study. Similarly to our final model for safety, the standard deviaton of the random intercepts for each patient was fairly large (1.18), suggesting that changes in adherence may be due to patient-specific differences not captured by our fixed effects.
 
-### Secondary Objectives
+## Secondary Objectives
 
-#### Pharmacokinetics (PK)
+### Pharmacokinetics (PK) & Demographics
 
-Change in viral loads from both the blood and the skin were not notably different between the three treatments.
+Change in viral load from baseline to four weeks (from both the blood and on the skin) were not notably different between the three treatments across all sequences (Figure 2). However, patients who experienced an AE, on average, seemed to have a considerably higher change in viral load on the skin than patients who did not have an AE for all three treatments (Figure 3, top). These differences were not as substantial for the change in viral load in the blood (Figure 3, top). Furthermore, for all three treatments, the trends in change in viral load across the number of adherence days for both blood and skin were similar, with the skin having slightly steeper decreases for each treatment (Figure 3, bottom). We found that the number of days of adherence for each treatment period were quite different by age, with younger patients having less adherence and older patients having more adherence, on average (Figure 4). There were no noticable differences in adherence by gender or race for any of the treatments across the skin and blood viral load changes (Figure 5).
 
-## Summary??? (discussion slide)
- 
-## Phase III Recommendations
+Our final linear mixed effects model for investigating change in viral load (for both blood and skin) includes fixed effects for treatment, the sum of AEs and days of adherence, age, race, gender, the interaction between treatment period and the sum of AEs, and the interaction between treatment period and age. Random effects were added for every patient and no significant carryover was found. Our final model can be expressed as:
 
+\begin{center}
+$Y_{ij}=trt_{ij}+AE_{ij}+adherence_{ij}+age_i+race_i+gender_i+(trt*AE)_{ij}+(trt*age)_{ij}+\alpha_i$, \end{center}
 
+where $i$ and $j$ represent patient and treatment period, respectively, $\alpha_i$ denotes the random intercept for each patient, and $Y_{ij}$ denotes change in viral load from baseline to four weeks for patient $i$ in treatment period $j$. 
 
-## Appendix
+For skin, our model results indicate that change in viral load is significantly higher for Gel B and Gel C compared to Pill A, holding all other variables constant (GelB p<0.001, 95\% CI: [54.30,188.82]; GelC p<0.001, 95\% CI: [66.00,127.89]) (Table 4A). Further, AEs (p=0.007, 95\% CI: [6.67,41.40]) and adherence (p<0.001, 95\% CI: [-2.53,-1.04]) have significant positive and negative effects, respectively, on change in viral load (Table 4A). In other words, as the number of AEs experienced increases, change in viral load also increases. Contrarily, as adherence increases, change in viral load is expected to decrease, which suggests that Pill A may be effective if used as prescribed. We also found that age has a significant effect on change in viral load from baseline to four weeks (p<0.001, 95\% CI: [0.99,2.31]) (Table 4A). Older patients seem to have slightly higher changes than younger patients. Lastly, we found that the interaction between treatment and the sum of AEs, and the interaction between treatment and age, were both significantly associated with change in viral load. This may indicate possible effect meausure modification.
 
-### Tables
+For blood, our model results show that change in viral load from baseline to four weeks is significantly higher for Gel C compared to Pill A (p=0.008, 95\% CI: [11.07,73.14]), but not significantly higher for Gel B compared to Pill A (Table 4B). Contrary to the model for skin, no meaningful relationship was found between change in viral load and the sum of AEs and adherence days (Table 4B). Age and all the interaction terms remain significant as in the skin model and can be interpreted similarly. Race and gender were insignificant from both the skin and blood models.
+
+Finally, our linear mixed effects model for assessing adherence by product (pill vs. gell) and regimen (one vs. three times a day) included fixed effects for product, regimen, age, the interation between product and age, and the interation between regimen and age. Age was included in this model due to the adherence differences observed in Figure 4. A random intercept was included for each patient and no significant carryover was found. This model can be expressed as:
+
+\begin{center}
+$Y_{ij}=product_{ij}+regimen{ij}+age_i+(product*age)_{ij}+(regimen*age)_{ij}+\alpha_i$,
+\end{center}
+
+where $i$ and $j$ denote patient and treatment period, respectively, $\alpha_i$ represents the random effect for each patient, and $Y_{ij}$ is the total number of adherence days for patient $i$ in treatment period $j$. 
+
+From our model results, we capture significant assocations between all of the predictors and the outcome (Table 5). Adherence seems to be higher for the pill product (Pill A) compared to a gel product (Gel B and Gel C), holding all other variables constant (p<0.001, 95\% CI: [11.70,14.97]) (Table 5). Additionally, adherence is expected to be lower for regimens that need to be taken three times a day (Gel B) compared to those that only have to be taken once a day (Pill A and Gel C) (p<0.001, 95\% CI:[-6.45,-3.17]) (Table 5). Age was found to be significantly related to adherence, as expected by Figure 4, where older patients are expected to adhere to treatment regimens more than younger patients (p<0.001, 95\% CI: [0.46,0.60]) (Table 5). Lastly, effect measure modification may be present due to the significance of both interaction terms with age.
+
+# Summary
+
+Although each treatment had varying numbers of AEs experienced by patients at trial end, these differences were not statistically significant. We found no substantial differences in safety between the treatments, adjusting for sequence and week. However, Pill A was found to have the highest adherence among all three treatments, adjusting for sequence, week, and carryover effects. Regarding pharmacokinetics, Pill A was the most effective in reducing change in viral load in both the blood and on the skin. Furthermore, our model results suggest that as the number of AEs decreases, and as adherence increases, there is a smaller improvement in change in viral load (both blood and skin), which is a positive finding. We also found that adherence is affected by age, product (pill vs. gel), and regimen (one vs. three times a day), and the effect of age actually differs by both product and regimen.
+
+# Phase III Recommendations
+
+Since we found that Pill A was not unsafe compared to the gel treatments, had the highest adherence, and was the most effective in reducing viral loads in both the blood and on the skin, we recommend proceeding with Pill A in a Phase III study. This study could use a two-arm, double-blind, multi-center, randomized, parallel group design with Pill A as the active intervention and a placebo as the control group, since it is not mentioned that a standard of care is currently available. To optimize the efficiency of the trial, a more flexible group sequential or adaptive design could be implemented to allow for intermediate analyses and the construction of early stopping procedures for futility and success as data is accrued. To make a more judicious decision, we would need information regarding the nature/severity of the AEs that occurred in each treatment. For instance, if all of the AEs that were experienced by patients using Pill A were more serious than those experienced by patients using Gel B or Gel C, our recommendation may change. Additionally, analyzing *weekly* pharmacokinetic (viral load) data, rather than only the change from baseline to four weeks, would allow us to gain further insights into the efficacy of the treatments and make a stronger recommendation.
+\newpage
+
+# Appendix
+
+## Tables
 
 \begin{table}[h!]
 \centering
@@ -99,7 +123,7 @@ Gel B & 1\% gel concentration; applied three times daily for 4 weeks \\ \hline
 Gel C & 2\% gel concentration; applied once daily for 4 weeks \\ \hline
 \end{tabular}
 \end{table}
-Table 1: Recommended dosage and administration schedules for each treatment in the Phase II MATIK trial, based on previous Phase I studies.
+Table 1: Recommended dosage and administration schedules for each treatment in the Phase II MATIK trial, based on prior Phase I studies.
 
 \begin{table}[h!]
 \centering
@@ -114,12 +138,7 @@ Sequence & Period 1 & Washout & Period 2 & Washout & Period 3 & Follow-up \\ \hl
 6        & Gel C    &         & Gel B    &         & Pill A   &           \\ \hline
 \end{tabular}
 \end{table}
-Table 2: Breakdown of all six treatment sequences in the Phase II MATIK trial. Periods last four weeks and washouts last about one week. Follow-up occurs about one week after the last period.
-
-
-
-
-### Figures
+Table 2: Breakdown of all six treatment sequences in the Phase II MATIK trial. Each period lasted four weeks and each washout lasted about one week. Follow-up occurred about one week after the last period.
 
 ```{r setup, include=FALSE}
 #load libraries
@@ -127,6 +146,7 @@ library(tidyverse)
 library(patchwork)
 library(nlme)
 library(caret)
+library(gridExtra)
 
 #load data
 bl.data=read.csv("baseline.csv")[,-c(1,3:5)]
@@ -151,7 +171,166 @@ all.data=merge(endpt.data,bl.data,by="ptid") %>%
          trt=factor(trt,levels=c("pillA","gelB","gelC")))
 ```
 
-```{r,echo=FALSE,warning=FALSE}
+```{r,include=FALSE}
+#FINAL MODEL FOR SAFETY
+#Logistic ME for AE ~ trt*seq2 + (1|ptid)
+m1=lme4::glmer(AE.or.adhere.val~trt+sequence2+week+(1|ptid),
+         data=all.data %>% filter(AE.or.Adhere=="AE")%>%
+           mutate(week=as.numeric(week)),
+         family="binomial")
+
+#FINAL ADHERENCE MODEL 
+  
+#LME for Adherence ~ trt*seq2 + (1|ptid)
+m5=lme(AE.or.adhere.val~trt*sequence2+week,
+         data=all.data %>% filter(AE.or.Adhere=="Adhere")%>%
+           mutate(week=as.numeric(week)),random=~1|ptid,method="ML")
+```
+\newpage
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\multicolumn{5}{|l|}{\textbf{(A) Logistic Mixed Effects Model for Safety}}              \\ \hline
+\textbf{Variable} & \textbf{Estimate} & \multicolumn{2}{c|}{\textbf{95\% CI}} & \textbf{p-Value} \\ \hline
+(Intercept) & -5.786 & -7.222 & -4.351 & $<$0.001 \\ \hline
+trtGelB & 0.318 & -0.386 & 1.022 & 0.376 \\ \hline
+trtGelC & -0.156 & -0.930 & 0.619 & 0.694 \\ \hline
+sequence2.AC & -0.429 & -1.493 & 0.634 & 0.429 \\ \hline
+sequence2.BC & -0.003 & -1.013 & 1.007 & 0.996 \\ \hline
+week & 0.356 & 0.079 & 0.633 & \textbf{\textcolor{red}{0.012}} \\ \hline
+\multicolumn{5}{|l|}{\textbf{(B) Linear Mixed Effects Model for Adherence}}              \\ \hline
+\textbf{Variable} & \textbf{Estimate} & \multicolumn{2}{c|}{\textbf{95\% CI}} & \textbf{p-Value} \\ \hline
+(Intercept) & 7.080 & 6.751 & 7.409 & \textless{}0.001 \\ \hline
+trt.GelB & -1.129 & -1.286 & -0.972 & \textbf{\textcolor{red}{\textless{}0.001}} \\ \hline
+trt.GelC & -0.829 & -0.986 & -0.672 & \textbf{\textcolor{red}{\textless{}0.001}} \\ \hline
+sequence2.AC & 0.038 & -0.415 & 0.490 & 0.871 \\ \hline
+sequence2.BC & -0.063 & -0.515 & 0.390 & 0.786 \\ \hline
+week & -0.187 & -0.220 & -0.154 & \textbf{\textcolor{red}{\textless{}0.001}} \\ \hline
+trt.GelB:sequence2.AC & 0.113 & -0.109 & 0.334 & 0.321 \\ \hline
+trt.GelC:sequence2.AC & 0.021 & -0.201 & 0.242 & 0.854 \\ \hline
+trt.GelB:sequence2.BC & 0.229 & 0.008 & 0.451 & \textbf{\textcolor{red}{0.043}} \\ \hline
+trt.GelC:sequence2.BC & 0.175 & -0.047 & 0.397 & 0.122 \\ \hline
+\end{tabular}
+\end{table}
+Table 3: (A) Final logistic mixed effects model results for evaluating treatment safety across all sequences. (B) Final linear mixed effects model results for assessing treatment adherence across all sequences.
+
+```{r,include=FALSE}
+secdata <- read.csv("secdata.csv")
+carryover <- c()
+for (i in 1:nrow(secdata)) {
+  if (secdata$sequence[i] == 1) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Pill A")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Gel B")
+  }
+  if (secdata$sequence[i] == 2) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Gel C")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Pill A")
+  }
+  if (secdata$sequence[i] == 3) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Gel B")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Gel C")
+  }
+  if (secdata$sequence[i] == 4) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Gel B")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Pill A")
+  }
+  if (secdata$sequence[i] == 5) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Pill A")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Gel C")
+  }
+  if (secdata$sequence[i] == 6) {
+    if (secdata$period[i] == "Period 1") carryover <- c(carryover, "None")
+    if (secdata$period[i] == "Period 2") carryover <- c(carryover, "Gel C")
+    if (secdata$period[i] == "Period 3") carryover <- c(carryover, "Gel B")
+  }
+}
+secdata$carryover <- factor(carryover, levels = c("None", "Pill A", "Gel B", "Gel C"))
+
+secdata$AEsum <- as.numeric(secdata$AEsum > 0)
+secdata$treatment <- factor(secdata$treatment, levels = c("Pill A", "Gel B", "Gel C"))
+secdata$regimen <- ifelse(secdata$ treatment == "Gel B", "Three Times", "Once")
+secdata$pill <- ifelse(secdata$treatment == "Pill A", "Yes", "No")
+
+secdata$gender <- as.factor(secdata$gender)
+levels(secdata$gender) <- c("Male", "Female")
+
+LMM1 <- lme(viral_skin ~ treatment + AEsum + Adheresum + age + race + gender + 
+              + treatment*AEsum + treatment*age, 
+            random = ~1| ptid, data = secdata) 
+# summary(LMM1)
+
+LMM2 <- lme(viral_blood ~ treatment +
+              AEsum + Adheresum + age + race + gender + 
+              treatment*Adheresum  + treatment*AEsum, 
+            random = ~1| ptid, data = secdata) 
+# summary(LMM2)
+
+LMM4 <- lme(Adheresum ~ pill + regimen + age + age*pill + age*regimen, 
+            random = ~1| ptid, data = secdata, method='REML') 
+# summary(LMM4)
+```
+\newpage
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\multicolumn{5}{|c|}{\textbf{(A) Linear Mixed Effects Model for Change in Viral Load (Skin)}}                   \\ \hline
+\textbf{Variable}    & \textbf{Estimate}   & \multicolumn{2}{c|}{\textbf{95\% CI}} & \textbf{p-Value}           \\ \hline
+trt.GelB             & 86.561              & 54.298            & 118.824           & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+trt.GelC             & 96.944              & 65.997            & 127.892           & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+AEsum                & 24.034              & 6.667             & 41.401            & \textcolor{red}{\textbf{0.007}}             \\ \hline
+ADHEREsum            & -1.788              & -2.533            & -1.043            & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+age                  & 1.652               & 0.992             & 2.311             & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+race.other           & 0.318               & -6.119            & 6.754             & 0.923                      \\ \hline
+race.white           & -4.011              & -10.845           & 2.823             & 0.248                      \\ \hline
+gender.Female        & -1.479              & -6.975            & 4.016             & 0.596                      \\ \hline
+trt.GelB:AEsum       & 47.314              & 23.200            & 71.428            & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+trt.GelC:AEsum       & 43.688              & 18.107            & 69.268            & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+trt.GelB:age         & -2.072              & -3.039            & -1.104            & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+trt.GelC:age         & -1.985              & -2.924            & -1.045            & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+\multicolumn{5}{|c|}{\textbf{(B) Linear Mixed Effects Model for Change in Viral Load (Blood)}}                  \\ \hline
+\textbf{Variable}    & \textbf{Estimate}   & \multicolumn{2}{c|}{\textbf{95\% CI}} & \textbf{p-Value}           \\ \hline
+trt.GelB             & 28.099              & -2.320            & 58.518            & 0.070                      \\ \hline
+trt.GelC             & 42.102              & 11.066            & 73.138            & \textcolor{red}{\textbf{0.008}}             \\ \hline
+AEsum                & 8.140               & -3.207            & 19.487            & 0.159                      \\ \hline
+ADHEREsum            & -0.590              & -1.731            & 0.552             & 0.310                      \\ \hline
+age                  & 0.757               & 0.424             & 1.089             & \textcolor{red}{\textbf{\textless{}0.001}}  \\ \hline
+race.other           & 0.933               & -3.373            & 5.238             & 0.670                      \\ \hline
+race.white           & 2.052               & -2.518            & 6.623             & 0.377                      \\ \hline
+gender.Female        & -3.231              & -6.904            & 0.441             & 0.084                      \\ \hline
+trt.GelB:ADHEREsum   & -0.992              & -2.161            & 0.178             & 0.096                      \\ \hline
+trt.GelC:ADHEREsum   & -1.434              & -2.627            & -0.241            & \textcolor{red}{\textbf{0.019}}             \\ \hline
+trt.GelB:age         & 26.242              & 10.615            & 41.869            & \textcolor{red}{\textbf{0.001}}             \\ \hline
+trt.GelC:age         & 18.517              & 1.992             & 35.042            & \textcolor{red}{\textbf{0.028}}             \\ \hline
+\end{tabular}
+\end{table}
+Table 4: (A) Final linear mixed effects model results for evaluating change in viral load on the skin from baseline to four weeks, including demographic variables. (B) Final linear mixed effects model results for assessing change in viral load in the blood from baseline to four weeks, including demographic variables.
+
+\newpage
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Variable} & \textbf{Estimate} & \multicolumn{2}{c|}{\textbf{95\% CI}} & \textbf{p-Value} \\ \hline
+product.Pill       & 13.336 & 11.697 & 14.974 & \textcolor{red}{\textbf{\textless{}0.001}} \\ \hline
+regimen.3times     & -4.807 & -6.446 & -3.169 & \textcolor{red}{\textbf{\textless{}0.001}} \\ \hline
+age                & 0.532  & 0.461  & 0.604  & \textcolor{red}{\textbf{\textless{}0.001}} \\ \hline
+product.Pill:age   & -0.322 & -0.372 & -0.272 & \textcolor{red}{\textbf{\textless{}0.001}} \\ \hline
+regimen.3times:age & 0.119  & 0.069  & 0.169  & \textcolor{red}{\textbf{\textless{}0.001}} \\ \hline
+\end{tabular}
+\end{table}
+Table 5: Final linear mixed effects model results for investigating total adherence days per week by age, product (pill vs. gel), and regimen (one vs. three times a day).
+\newpage
+
+## Figures
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE}
 #PRIMARY OBJECTIVES (safety and adherence)
 
 #Safety
@@ -194,4 +373,98 @@ adherence.plot2=alldata%>%
 (ae.plot1+adherence.plot1)/(ae.plot2+adherence.plot2)
 ```
 
-Figure 1: Number of AEs and number of adherence days for each treatment by week across all sequences.
+Figure 1: Number of AEs and adherence days for each treatment by week across all sequences.
+
+```{r,echo=FALSE,message=FALSE}
+secdata_long <- rbind(data.frame(select(secdata, -viral_skin, -viral_blood),
+                                 viral = secdata$viral_skin,
+                                 position = rep("Skin", length(secdata$viral_skin))),
+                      data.frame(select(secdata, -viral_skin, -viral_blood),
+                                 viral = secdata$viral_blood,
+                                 position = rep("Blood", length(secdata$viral_blood))))
+
+ggplot(data = secdata_long, aes(x = period, y = viral)) +
+  geom_violin(aes(fill = treatment), position = position_dodge(width = 0.8)) +
+  geom_boxplot(aes(group=interaction(treatment,period)),
+               width=0.1, fill="white", position = position_dodge(width = 0.8),
+               outlier.shape=NA, outlier.color=NA) +
+  facet_grid(~position) +
+  ylab("Viral Load Change") +
+  xlab("Period") +
+  guides(fill=guide_legend(title="Treatment"))
+```
+
+Figure 2: Violin plots showing change in viral load in the blood and on the skin for each treatment across all sequences.
+
+```{r,echo=FALSE,message=FALSE}
+g2=ggplot(data = secdata_long) +
+  geom_violin(aes(x = factor(AEsum), y = viral, fill = treatment), 
+              position = position_dodge(width = 0.8)) +
+  geom_boxplot(aes(x = factor(AEsum), y = viral,
+                   group=interaction(factor(AEsum),treatment)),
+               width=0.1, fill="white", position = position_dodge(width = 0.8),
+               outlier.shape=NA, outlier.color=NA) +
+  geom_smooth(aes(x = AEsum+1, y = viral, color = treatment), method = lm, se = F) +
+  facet_grid(~position) +
+  ylab("Viral Load Change") +
+  xlab("Adverse Event") +
+  guides(color=guide_legend(title="Treatment"),
+         fill=guide_legend(title="Treatment"))
+
+g1=ggplot(data = secdata_long, aes(x = Adheresum, y = viral)) +
+  geom_point(aes(color = treatment), alpha = 0.5) +
+  geom_smooth(aes(color = treatment), method = lm, se = F) +
+  facet_grid(~position) +
+  ylab("Viral Load Change") +
+  xlab("Adherence") +
+  guides(color=guide_legend(title="Treatment"))
+
+g2/g1
+```
+
+Figure 3: (Top) Violin plots showing change in viral load in the blood and on the skin for each treatment across all sequences, stratified by whether or not an AE was experienced over the course of the trial. (Bottom) Line plots showing change in viral load in the blood and on the skin for each treatment across all sequences, stratified by adherence.
+
+```{r,echo=FALSE,message=FALSE}
+g3=ggplot(data = secdata_long) +
+  geom_point(aes(x = age, y = Adheresum, color = treatment), alpha = 0.5) +
+  geom_smooth(aes(x = age, y = Adheresum, color = treatment), alpha = 0.5) +
+  ylab("Adherence") +
+  xlab("Age") +
+  guides(color=guide_legend(title="Treatment"))
+
+g4=ggplot(data = secdata_long) +
+  geom_violin(aes(x = gender, y = viral, fill = treatment), 
+              position = position_dodge(width = 0.8)) +
+  geom_boxplot(aes(x = gender, y = viral,
+                   group=interaction(gender,treatment)),
+               width=0.1, fill="white", position = position_dodge(width = 0.8),
+               outlier.shape=NA, outlier.color=NA) +
+  facet_grid(~position) +
+  ylab("Adherence") +
+  xlab("Gender") +
+  guides(color=guide_legend(title="Treatment"),
+         fill=guide_legend(title="Treatment"))
+
+g5=ggplot(data = secdata_long) +
+  geom_violin(aes(x = race, y = viral, fill = treatment), 
+              position = position_dodge(width = 0.8)) +
+  geom_boxplot(aes(x = race, y = viral,
+                   group=interaction(race,treatment)),
+               width=0.1, fill="white", position = position_dodge(width = 0.8),
+               outlier.shape=NA, outlier.color=NA) +
+  facet_grid(~position) +
+  ylab("Adherence") +
+  xlab("Race") +
+  guides(color=guide_legend(title="Treatment"),
+         fill=guide_legend(title="Treatment"))
+
+g3
+```
+
+Figure 4: Line plots showing adherence for each treatment across age. 
+
+```{r,message=FALSE,warning=FALSE,echo=FALSE}
+g4/g5
+```
+
+Figure 5: (Top) Violin plots showing adherence for each treatment, stratified by gender. (Bottom) Violin plots showing adherence for each treatment, stratified by race.

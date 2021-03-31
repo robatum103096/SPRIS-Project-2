@@ -43,7 +43,7 @@ table1::table1( ~ age+race+factor(gender)|treatment,alldata,
                 overall=NULL)
 ```
 
-```{r}
+```{r, include=FALSE}
 #PRIMARY OBJECTIVES (safety and adherence)
 
 #Safety
@@ -64,10 +64,25 @@ safety.nonlin=alldata%>%
   geom_point()+geom_line(aes(group=treatment))+
   labs(y="No. of grade 2 or higher AEs",x="Week",colour="Treatment")
 
-ae.plot1/safety.nonlin
+#Adherence (ACROSS ALL 6 SEQUENCES)
+adherence.plot1=all.data %>%
+  dplyr::filter(AE.or.Adhere=="Adhere") %>%
+  dplyr::select(trt,AE.or.adhere.val,week) %>%
+  ggplot(aes(x=week,y=AE.or.adhere.val))+
+  geom_histogram(stat="identity")+
+  facet_grid(.~trt)+
+  labs(y="Days of adherence",x="Week")
 
+adherence.plot2=alldata%>%
+  mutate(treatment=factor(treatment,levels=c("Pill A","Gel B","Gel C")),
+         week=str_sub(week,5,-1))%>%
+  group_by(week,treatment)%>%
+  summarise(sum.Adhere=sum(Adhere))%>%
+  ggplot(aes(x=week,y=sum.Adhere,col=treatment))+
+  geom_point()+geom_line(aes(group=treatment))+
+  labs(y="Days of adherence",x="Week",colour="Treatment")
 
-
+()adherence.plot1/adherence.plot2
 
 
 #ae.plot2=all.data %>%
